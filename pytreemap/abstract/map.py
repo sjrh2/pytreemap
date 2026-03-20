@@ -1,73 +1,188 @@
-#!/usr/bin/env python
-"""A Python implementation of the Java Map interface.
-"""
-from abc import ABC, abstractmethod
+#!/usr/bin/env -S uv run --script
+# -*- mode: python -*-
 
-__author__ = 'Haoran Peng'
-__email__ = 'gavinsweden@gmail.com'
-__license__ = 'GPL-2.0'
-__version__ = '0.4'
-__status__ = 'Alpha'
+# /// script
+# requires-python = ">=3.13"
+# ///
+#
+
+"""A Python implementation of the Java Map interface."""
+from abc import ABC, abstractmethod
+from typing import Self
+
+__author__ = "Haoran Peng"
+__email__ = "gavinsweden@gmail.com"
+__license__ = "GPL-2.0"
+__version__ = "0.4"
+__status__ = "Alpha"
 
 
 class Map(ABC):
+    """Base class for a map data structure."""
 
     @abstractmethod
-    def size(self):
+    def size(self) -> int:
+        """Amount of items in map.
+
+        Returns:
+            Size of map
+
+        """
         raise NotImplementedError
 
-    __len__ = size
+    def __len__(self) -> int:
+        """Magic method override depends on size.
+
+        Returns:
+            Size of map
+
+        """
+        return self.size()
 
     @abstractmethod
-    def is_empty(self):
-        raise NotImplementedError
+    def is_empty(self) -> bool:
+        """Whether map size is equal to zero.
 
-    @abstractmethod
-    def contains_key(self, key):
-        raise NotImplementedError
+        Returns:
+            True or False
 
-    __contains__ = contains_key
-
-    @abstractmethod
-    def contains_value(self, value):
-        raise NotImplementedError
-
-    @abstractmethod
-    def get(self, key):
-        raise NotImplementedError
-
-    __getitem__ = get
-
-    @abstractmethod
-    def put(self, key, value):
-        raise NotImplementedError
-
-    __setitem__ = put
-
-    @abstractmethod
-    def remove(self, key):
-        raise NotImplementedError
-
-    __delitem__ = remove
-
-    @abstractmethod
-    def put_all(self, m):
+        """
         raise NotImplementedError
 
     @abstractmethod
-    def clear(self):
+    def contains_key(self, key: str) -> bool:
+        """Find whether a key exists in the map.
+
+        Returns:
+            True or False whether key exists in map
+
+        """
+        raise NotImplementedError
+
+    def __contains__(self, key: str) -> bool:
+        """Magic Method overide depends on contains_key.
+
+        Returns:
+            True or False whether key is present
+
+        """
+        return self.contains_key(key)
+
+    @abstractmethod
+    def contains_value(self, value: str | float) -> bool:
+        """Find whether a value exists in the map.
+
+        Returns:
+            True or False whether key exists in map
+
+        """
         raise NotImplementedError
 
     @abstractmethod
-    def key_set(self):
+    def get(self, key: str) -> str | float:
+        """Get the value at a key.
+
+        Returns:
+            Key value
+
+        """
+        raise NotImplementedError
+
+    def __getitem__(self, key: str) -> str | float:
+        """Magic Method overide depends on contains_key.
+
+        Returns:
+            True or False whether key is present
+
+        """
+        return self.get(key)
+
+    @abstractmethod
+    def put(self, key: str, value: str | float) -> bool:
+        """Put key value in map.
+
+        Returns:
+            True or False whether put succsesful
+
+        """
+        raise NotImplementedError
+
+    def __setitem__(self, key: str, value: str | float) -> bool:
+        """Magic Method overide depends on remove.
+
+        Returns:
+            True or False whether remove is succsesful
+
+        """
+        return self.put(key, value)
+
+    @abstractmethod
+    def remove(self, key: str) -> bool:
+        """Remove key value from map.
+
+        Returns:
+            True or False whether remove succsesful
+
+        """
+        raise NotImplementedError
+
+    def __delitem__(self, key: str) -> str | float:
+        """Magic Method overide depends on remove.
+
+        Returns:
+            True or False whether remove is succsesful
+
+        """
+        return self.remove(key)
+
+    @abstractmethod
+    def put_all(self, m: Self) -> Self:
+        """Put all the map items into another map.
+
+        Returns:
+            the modified Map class
+
+        """
         raise NotImplementedError
 
     @abstractmethod
-    def values(self):
+    def clear(self) -> Self:
+        """Clear all the map items in the map.
+
+        Returns:
+            the emptied Map class
+
+        """
         raise NotImplementedError
 
     @abstractmethod
-    def entry_set(self):
+    def key_set(self) -> list[str]:
+        """Get all the keys from the map.
+
+        Returns:
+            List of all the keys
+
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def values(self) -> list[str | float]:
+        """Get all the values from the map.
+
+        Returns:
+            List of all the values
+
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def entry_set(self) -> dict[str, str | float]:
+        """Get a specific entry set map.
+
+        Returns:
+            the entry set
+
+        """
         raise NotImplementedError
 
     class Entry(ABC):
@@ -108,14 +223,14 @@ class Map(ABC):
 
     __hash__ = hash_code
 
-    def get_or_default(self, key, default_value):
+    def _get_or_default(self, key, default_value):
         v = self.get(key)
         if v is not None or self.contains_key(key):
             return v
         else:
             return default_value
 
-    def for_each(self, action):
+    def _for_each(self, action):
         if action is None:
             raise TypeError
         for entry in self.entry_set():
@@ -126,7 +241,7 @@ class Map(ABC):
                 raise RuntimeError
             action(k, v)
 
-    def replace_all(self, function):
+    def _replace_all(self, function):
         if function is None:
             raise TypeError
         for entry in self.entry_set():
@@ -141,25 +256,26 @@ class Map(ABC):
             except RuntimeError:
                 raise RuntimeError
 
-    def put_if_absent(self, key, value):
+    def _put_if_absent(self, key, value):
         v = self.get(key)
         if v is None:
             v = self.put(key, value)
         return v
 
-    def replace(self, key, value1, value2=None):
+    def _replace(self, key, value1, value2=None):
         cur_value = self.get(key)
         if value2 is None:
             if cur_value is not None or self.contains_key(key):
                 cur_value = self.put(key, value1)
             return cur_value
-        if (cur_value != value1 or
-                (cur_value is None and not self.contains_key(key))):
+        if cur_value != value1 or (
+            cur_value is None and not self.contains_key(key)
+        ):
             return False
         self.put(key, value2)
         return True
 
-    def compute_if_absent(self, key, mapping_function):
+    def _compute_if_absent(self, key, mapping_function):
         if mapping_function is None:
             raise TypeError
         v = self.get(key)
@@ -170,7 +286,7 @@ class Map(ABC):
                 return new_value
         return v
 
-    def compute_if_present(self, key, remapping_function):
+    def _compute_if_present(self, key, remapping_function):
         if remapping_function is None:
             raise TypeError
         old_value = self.get(key)
@@ -185,7 +301,7 @@ class Map(ABC):
         else:
             return None
 
-    def compute(self, key, remapping_function):
+    def _compute(self, key, remapping_function):
         if remapping_function is None:
             raise TypeError
         old_value = self.get(key)

@@ -1,0 +1,12 @@
+# I've only done two separate uv adds - pytest, adn sphinx
+
+[project]
+name = "pytreemap"
+version = "0.1.0"
+description = "An updated for of pytreemap focused on performance and readability"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "coverage>=7.13.5",
+    "pytest>=9.0.2",
+]

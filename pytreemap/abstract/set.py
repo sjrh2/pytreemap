@@ -2,6 +2,7 @@
 """A Python implementation of the Java Set interface.
 """
 from abc import abstractmethod
+
 from .collection import Collection
 
 __author__ = 'Haoran Peng'
