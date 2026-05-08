@@ -244,9 +244,7 @@ class Map(ABC):
                 raise RuntimeError
             action(k, v)
 
-    def _replace_all(self, function):
-        if function is None:
-            raise TypeError
+    def _replace_all(self, function: Callable[..., Any]) -> None:
         for entry in self.entry_set():
             try:
                 k = entry.get_key()
@@ -259,13 +257,12 @@ class Map(ABC):
             except RuntimeError:
                 raise RuntimeError
 
-    def _put_if_absent(self, key, value):
+    def _put_if_absent(self, key: str, value: str | float):
         v = self.get(key)
-        if v is None:
-            v = self.put(key, value)
+        v = self.put(key, value)
         return v
 
-    def _replace(self, key, value1, value2=None):
+    def _replace(self, key: str, value1: str | float, value2: str | float | None = None):
         cur_value = self.get(key)
         if value2 is None:
             if cur_value is not None or self.contains_key(key):
@@ -275,23 +272,18 @@ class Map(ABC):
             cur_value is None and not self.contains_key(key)
         ):
             return False
-        self.put(key, value2)
+        _ = self.put(key, value2)
         return True
 
-    def _compute_if_absent(self, key, mapping_function):
-        if mapping_function is None:
-            raise TypeError
+    def _compute_if_absent(self, key: str, mapping_function: Callable[..., Any]):
         v = self.get(key)
-        if v is None:
-            new_value = mapping_function(key)
-            if new_value is not None:
-                self.put(key, new_value)
-                return new_value
+        new_value = mapping_function(key)
+        if new_value is not None:
+            _ = self.put(key, new_value)
+            return new_value
         return v
 
-    def _compute_if_present(self, key, remapping_function):
-        if remapping_function is None:
-            raise TypeError
+    def _compute_if_present(self, key: str, remapping_function: Callable[..., Any]):
         old_value = self.get(key)
         if old_value is not None:
             new_value = remapping_function(key, old_value)
@@ -304,9 +296,7 @@ class Map(ABC):
         else:
             return None
 
-    def _compute(self, key, remapping_function):
-        if remapping_function is None:
-            raise TypeError
+    def _compute(self, key: str, remapping_function: Callable[..., Any]):
         old_value = self.get(key)
         new_value = remapping_function(key, old_value)
         if new_value is None:
