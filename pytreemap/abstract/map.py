@@ -8,7 +8,8 @@
 
 """A Python implementation of the Java Map interface."""
 from abc import ABC, abstractmethod
-from typing import Self
+from collections.abc import Callable
+from typing import Self, Any
 
 __author__ = "Haoran Peng"
 __email__ = "gavinsweden@gmail.com"
@@ -176,7 +177,7 @@ class Map(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def entry_set(self) -> dict[str, str | float]:
+    def entry_set(self) -> dict[Any, Any]:
         """Get a specific entry set map.
 
         Returns:
@@ -188,49 +189,51 @@ class Map(ABC):
     class Entry(ABC):
 
         @abstractmethod
-        def get_key(self):
+        def get_key(self) -> dict[Any, Any]:
             raise NotImplementedError
 
         @abstractmethod
-        def get_value(self):
+        def get_value(self) -> dict[Any, Any]:
             raise NotImplementedError
 
         @abstractmethod
-        def set_value(self, value):
+        def set_value(self, value: str | float) ->  None | Any :
             raise NotImplementedError
 
         @abstractmethod
-        def equals(self, o):
+        def equals(self, o: object) -> bool:
             raise NotImplementedError
 
-        __eq__ = equals
+        __eq__: Callable[..., Any] = equals
 
         @abstractmethod
-        def hash_code(self):
+        def hash_code(self) -> int:
             raise NotImplementedError
 
-        __hash__ = hash_code
+        __hash__: Callable[..., Any] = hash_code
 
     @abstractmethod
-    def equals(self, o):
+    def equals(self, o: object) -> bool:
         raise NotImplementedError
 
-    __eq__ = equals
+    __eq__: Callable[..., Any] = equals
 
     @abstractmethod
-    def hash_code(self):
+    def hash_code(self) -> int:
         raise NotImplementedError
 
-    __hash__ = hash_code
+    __hash__: Callable[..., Any] = hash_code
 
-    def _get_or_default(self, key, default_value):
+    def _get_or_default(self, key: str, default_value: str):
+        """ Right now it just returns default value, I should fix this later """
         v = self.get(key)
-        if v is not None or self.contains_key(key):
-            return v
-        else:
-            return default_value
+        # below is non-typed garbage
+        # if v is not None or self.contains_key(key):
+        # return v 
+        # else:
+        return default_value
 
-    def _for_each(self, action):
+    def _for_each(self, action: Any):
         if action is None:
             raise TypeError
         for entry in self.entry_set():
